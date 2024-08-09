@@ -15,10 +15,42 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from django.urls import include
 
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Test API",
+        default_version="v1",
+        description="Test Description",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="contact@gmail.com"),
+        license=openapi.License(name="BSD License")
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny],
+)
+
 urlpatterns = [
+    path('turntable/', include("turntable.urls")),
+    path('', include("snippets.urls")),
     path('polls/', include("polls.urls")),
     path('admin/', admin.site.urls),
+    path('api/schema', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('authorizations/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('verify/', TokenVerifyView.as_view(), name='token_verify'),
+]
+
+urlpatterns += [
+    path('api-auth/', include('rest_framework.urls'))
 ]

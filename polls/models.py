@@ -104,6 +104,20 @@ class CommonInfo(models.Model):
     class Meta:
         abstract = True  # 不会生成表,其他集成这个类的子类都有上面的属性
         ordering = ["name"]
+        # app_label = ""
+        # base_manager_name = "" 管理器的属性名
+        db_table = "common_info"  # 用于模型的数据库表的名称
+        db_table_comment = "common info"  # 此模型的数据库表的注释
+        # managed = False 默认是True,意味着django会在migrate中创建相应的数据库表
+        # order_with_respect_to 使改对象可以根据给定字段(ForeignKey)进行排序
+        # proxy = True 作为另一个模型子类的模型将被视为代理模型
+        indexes = [
+            models.Index(fields=["name", "age"]),
+            models.Index(fields=["name"], name="name_idx")
+        ]
+        constraints = [
+            models.CheckConstraint(check=models.Q(age__gte=18), name="age_gte_18")
+        ]  # 模型上定义约束
 
 
 class Student(CommonInfo):
